@@ -6,12 +6,17 @@ ARG TINI_VER="v0.19.0"
 ADD https://github.com/krallin/tini/releases/download/$TINI_VER/tini /sbin/tini
 RUN chmod +x /sbin/tini
 
+# ADD THIS SECTION TO FORCE ARCHIVE MIRRORS
+# This overwrites the sources.list to point to the Debian Archive.
+RUN sed -i 's/http:\/\/deb.debian.org/http:\/\/archive.debian.org/g' /etc/apt/sources.list && \
+    sed -i 's/http:\/\/security.debian.org/http:\/\/archive.debian.org\/debian-security/g' /etc/apt/sources.list
+
 # install sqlite3
-RUN apt-get update                                                   \
- && apt-get install    --quiet --yes --no-install-recommends sqlite3 \
- && apt-get clean      --quiet --yes                                 \
- && apt-get autoremove --quiet --yes                                 \
- && rm -rf /var/lib/apt/lists/*
+RUN apt-get update \
+    && apt-get install    --quiet --yes --no-install-recommends sqlite3 \
+    && apt-get clean      --quiet --yes                                  \
+    && apt-get autoremove --quiet --yes                                  \
+    && rm -rf /var/lib/apt/lists/*
 
 # copy minetrack files
 WORKDIR /usr/src/minetrack
